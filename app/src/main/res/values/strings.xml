@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Focuss</string>
+    <string name="accessibility_service_description">For monitoring the usage of instagram to prevent doomscrolling.</string>
+</resources>
