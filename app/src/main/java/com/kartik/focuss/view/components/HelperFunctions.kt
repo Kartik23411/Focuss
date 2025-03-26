@@ -25,31 +25,63 @@ fun Float.toTime(): String {
         (this + 1f).toInt().toString()
 }
 
-fun getRandomMessage():String{
+fun getRandomMessage(): String {
     val messagesList = listOf<String>(
 //        "You've spent X mins on Instagram, move your ass now! 🚀📵",
         "Bas kar bhai, do something productive now! ⏳💪",
-    "Reels ke chode, sharam kar and get a life 😭📲",
-    "Shabash beta, 1 ghanta aur reels dekh le 🤡👏",
-    "Pookie, kuch kaam karle thoda! 😘📚",
-    "Naa maane? Karu teri guddi laal? 😡👋🏻"
+        "Reels ke chode, sharam kar and get a life 😭📲",
+        "Shabash beta, 1 ghanta aur reels dekh le 🤡👏",
+        "Pookie, kuch kaam karle thoda! 😘📚",
+        "Naa maane? Karu teri guddi laal? 😡👋🏻"
 
     )
 
     return messagesList.random()
 }
 
-val list1 = listOf<String>("Test 1.1", "Test 1.2", "Test 1.3", "Test 1.4")
-val list2 = listOf<String>("Test 2.1", "Test 2.2", "Test 2.3", "Test 2.4")
-val list3 = listOf<String>("Test 3.1", "Test 3.2", "Test 3.3", "Test 3.4")
-val list4 = listOf<String>("Test 4.1", "Test 4.2", "Test 4.3", "Test 4.4")
+val list1 = listOf<String>(
+    " mins gone 🤙🏻 Stop Scrolling!",
+    " mins ❌ Do something productive now!",
+    " mins down the drain, move your ass 🍑 now!",
+    " mins wasted on Instagram, bas kar bhai!",
+    " mins ho gaye, ab ruk bhi ja! 🤨",
+    " mins of scrolling... ab kya Nobel Prize milega? 🏆",
+)
+val list2 = listOf<String>( " mins gone 😡 Karu teri Guddi laal?",
+" mins ka scrollathon! Uth ja, warna phone chipak jayega! 🛑",
+" mins ho gaye.. ab Instagram wale tujhe salary denge kya? 😂",
+" mins ho gaye, maa baap kya kahenge? 😭",
+" mins chale gayi, teri izzat bhi chali jaayegi! 😤",
+" mins ho gaye, ab bas reel-life se real-life me aa! 📵",
+" mins scrolling.. koi medal nahi milega bhai! 🏅",
+" mins ho gaye, teri battery nahi thaki? 🔋"
+//Aree bhai X mins se scroll kar raha hai, tu thakta nahi kya? 😵‍💫
+)
+val list3 = listOf<String>(
+   " mins wasted 🤬 You idiot!",
+//Tabhi tum ese ho! X mins se Instagram 🤦
+" mins barbaad 📉 Abey Gadhe 🤡",
+ " mins se Reels, Hai koi sharam ya nahi? 😭",
+" mins gone! Ab tu reel ka hero nahi, apni life ka villain hai! 😡",
+" mins ho gaye, resume me “Instagram Scroller” likhega? 📄",
+" mins barbaad! Tu khud ek meme ban chuka hai! 🤡",
+" mins of scrolling, ab dimaag bhi uninstall ho gaya hoga! 🧠❌"
+)
+val list4 = listOf<String>(
+    "Bas kar saale! Itna time padhai ki hoti to IIT me hota! 🎓",
+    "Shabash, bilkul ese he sapne poore honge!",
+    "Shabash beta, 1 ghanta aur reels dekh le 🤡👏",
+    "Reels ke chode, sharam kar and get a life! 📲",
+    "Pookie Beta 💘 kuch kaam karlo!"
+)
 
-fun getMessage(usedMinutes: Int): String{
-    when(usedMinutes){
-        in 1..5 -> return list1.random()
-        in 5..15 -> return list2.random()
-        in 15..30 -> return list3.random()
-        else    -> return list4.random()
+fun getMessage(usedMinutes: Int): String {
+    when (usedMinutes) {
+        in 1..15  -> return list1.random()
+        in 15..30 -> return list2.random()
+        in 30..45 -> return list3.random()
+        in 45..60 -> return list4.random()
+        else      -> return list4.random()
     }
 }
 

@@ -200,11 +200,18 @@ class UsageMonitorService : Service() {
     // Displays the alert notification when the usage threshold is exceeded.
     private fun showAlertNotification(extraMinutes: Int) {
         val notification = NotificationCompat.Builder(this, ALERT_CHANNEL_ID)
-                .setContentTitle(getMessage(extraMinutes))
+                .setContentTitle(
+                    if (extraMinutes < 45)
+                        "$extraMinutes" + getMessage(extraMinutes)
+                    else
+                        getMessage(extraMinutes)
+                )
                 .setSmallIcon(R.drawable.icon)
-                .setAutoCancel(true)
+                .setOngoing(true)
+                .setAutoCancel(false)
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .build()
+        notification.flags = notification.flags or Notification.FLAG_NO_CLEAR
 
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.notify(ALERT_NOTIFICATION_ID, notification)
