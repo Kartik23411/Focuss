@@ -1,13 +1,14 @@
 package com.kartik.focuss
 
 import android.app.Notification
+import android.app.Notification.VISIBILITY_PUBLIC
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.Service
 import android.app.usage.UsageEvents
 import android.app.usage.UsageStatsManager
 import android.content.ContentResolver
-import android.content.Context
 import android.content.Intent
 import android.media.AudioAttributes
 import android.net.Uri
@@ -17,7 +18,6 @@ import android.os.IBinder
 import android.os.Looper
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import com.kartik.focuss.view.components.getRandomMessage
 import androidx.core.net.toUri
 import com.kartik.focuss.view.components.getMessage
 
@@ -60,7 +60,7 @@ class UsageMonitorService : Service() {
                     // Check if sessionTime has crossed an additional threshold interval.
                     if (sessionTime >= (notificationCount + 1) * thresholdTime) {
                         // Calculate the extra time used in minutes beyond the previous threshold.
-                        val extraTime = sessionTime - (notificationCount * thresholdTime)
+//                        val extraTime = sessionTime - (notificationCount * thresholdTime)
                         val extraMinutes = (sessionTime / (60 * 1000)).toInt()
                         Log.d(TAG, "Usage threshold exceeded, sending alert with extra usage: $extraMinutes min")
                         showAlertNotification(extraMinutes)
@@ -69,6 +69,7 @@ class UsageMonitorService : Service() {
             } else {
                 if (instagramUsageStartTime != 0L) {
                     Log.d(TAG, "Instagram is no longer in foreground, resetting timer")
+                    clearAlertNotification()
                 }
                 instagramUsageStartTime = 0
                 sessionTime = 0
@@ -81,9 +82,9 @@ class UsageMonitorService : Service() {
     override fun onCreate() {
         super.onCreate()
         Log.d(TAG, "Service onCreate called, initializing service")
-        usageStatsManager = getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+        usageStatsManager = getSystemService(USAGE_STATS_SERVICE) as UsageStatsManager
 
-        val prefs = getSharedPreferences("focuss_prefs", Context.MODE_PRIVATE)
+        val prefs = getSharedPreferences("focuss_prefs", MODE_PRIVATE)
         val thresholdMinutes = prefs.getInt("threshold_time", 5)
         thresholdTime = thresholdMinutes * 60 * 1000L
         Log.d(TAG, "Threshold time set to $thresholdTime ms")
@@ -180,6 +181,8 @@ class UsageMonitorService : Service() {
                 setSound(soundUri, audioAttributes)
                 enableVibration(true)
                 vibrationPattern = longArrayOf(0, 500, 200, 500)
+                setShowBadge(true)
+                lockscreenVisibility = VISIBILITY_PUBLIC
             }
             val manager = getSystemService(NotificationManager::class.java)
             manager.createNotificationChannel(serviceChannel)
@@ -199,33 +202,45 @@ class UsageMonitorService : Service() {
 
     // Displays the alert notification when the usage threshold is exceeded.
     private fun showAlertNotification(extraMinutes: Int) {
+
+        val intent = Intent(this, MainActivity::class.java)
+        val pendingIntent = PendingIntent.getActivity(
+            this,
+            0,
+            intent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
         val notification = NotificationCompat.Builder(this, ALERT_CHANNEL_ID)
                 .setContentTitle(
-                    if (extraMinutes < 45)
                         "$extraMinutes" + getMessage(extraMinutes)
-                    else
-                        getMessage(extraMinutes)
                 )
                 .setSmallIcon(R.drawable.icon)
                 .setOngoing(true)
                 .setAutoCancel(false)
                 .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setCategory(NotificationCompat.CATEGORY_CALL)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setFullScreenIntent(pendingIntent, true)
+                .setContentIntent(pendingIntent)
+                .setStyle(NotificationCompat.BigTextStyle()
+                                .setBigContentTitle(
+                                        "$extraMinutes" + getMessage(extraMinutes)
+                                )
+                        .setSummaryText("Swipe to dismiss"))
                 .build()
-        notification.flags = notification.flags or Notification.FLAG_NO_CLEAR
 
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notification.flags = notification.flags or Notification.FLAG_NO_CLEAR
+        notification.flags = notification.flags or Notification.FLAG_ONGOING_EVENT
+        notification.flags = notification.flags or Notification.FLAG_AUTO_CANCEL
+
+        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.notify(ALERT_NOTIFICATION_ID, notification)
         Log.d(TAG, "Alert notification displayed")
     }
-}
 
-//else {
-//                    val elapsed = System.currentTimeMillis() - instagramUsageStartTime
-//                    Log.d(TAG, "Instagram has been in foreground for $elapsed ms")
-//                    if (elapsed >= thresholdTime) {
-//                        Log.d(TAG, "Usage threshold exceeded, sending alert notification")
-//                        showAlertNotification((elapsed/60000).toInt())
-//                        Log.e("elapsed", "Time elapsed is ${elapsed.toInt().toString()}")
-//                        // Reset the timer after alerting to avoid repeated alerts
-//                        instagramUsageStartTime = System.currentTimeMillis()
-//                    }
+    private fun clearAlertNotification(){
+        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.cancel(ALERT_NOTIFICATION_ID)
+    }
+}

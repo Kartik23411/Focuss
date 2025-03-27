@@ -42,37 +42,38 @@ fun getRandomMessage(): String {
 val list1 = listOf<String>(
     " mins gone 🤙🏻 Stop Scrolling!",
     " mins ❌ Do something productive now!",
-    " mins down the drain, move your ass 🍑 now!",
-    " mins wasted on Instagram, bas kar bhai!",
+    " mins to gye Pookie 🎀 Ab kuch kaam karle",
+    " mins Khatam, Tata, Goodbye 🤡",
     " mins ho gaye, ab ruk bhi ja! 🤨",
-    " mins of scrolling... ab kya Nobel Prize milega? 🏆",
+    " mins ho gaye, teri battery nahi thaki? 🔋",
+    " mins of scrolling? Ab Nobel Prize bheju?🏆",
 )
 val list2 = listOf<String>( " mins gone 😡 Karu teri Guddi laal?",
-" mins ka scrollathon! Uth ja, warna phone chipak jayega! 🛑",
-" mins ho gaye.. ab Instagram wale tujhe salary denge kya? 😂",
-" mins ho gaye, maa baap kya kahenge? 😭",
-" mins chale gayi, teri izzat bhi chali jaayegi! 😤",
-" mins ho gaye, ab bas reel-life se real-life me aa! 📵",
-" mins scrolling.. koi medal nahi milega bhai! 🏅",
-" mins ho gaye, teri battery nahi thaki? 🔋"
-//Aree bhai X mins se scroll kar raha hai, tu thakta nahi kya? 😵‍💫
+    " mins barbad! Uth varna phone chipak jayega",
+    " mins down the drain, move your ass 🍑 now",
+    " mins wasted on Instagram, ab bas kar yar!",
+    " mins 👎 ab Instagram wale nahi denge! 😭",
+    " mins to ud gye, ab 1 ghanta aur uda le 😡",
+    " mins wasted, Ab Maa-Baap kya kahenge? 😭",
+    " mins to gye, ab teri izzat bhi jaayegi🤙🏻",
+    " mins gone, ab to real-life me aaja😭",
+    " mins scrolling.. koi medal nahi milega🏅",
+    " mins se scroll karra, tu thakta nahi kya?",
 )
 val list3 = listOf<String>(
-   " mins wasted 🤬 You idiot!",
-//Tabhi tum ese ho! X mins se Instagram 🤦
-" mins barbaad 📉 Abey Gadhe 🤡",
- " mins se Reels, Hai koi sharam ya nahi? 😭",
-" mins gone! Ab tu reel ka hero nahi, apni life ka villain hai! 😡",
-" mins ho gaye, resume me “Instagram Scroller” likhega? 📄",
-" mins barbaad! Tu khud ek meme ban chuka hai! 🤡",
-" mins of scrolling, ab dimaag bhi uninstall ho gaya hoga! 🧠❌"
+    " mins wasted 🤬 You idiot!",
+    " mins barbaad 📉 Gadhe kahi ke! 🤡",
+    " mins se Reels, hai koi sharam ya nahi? 😭",
+    " mins ❌ resume me Instagram scroller likhle",
+    " mins wasted! Tu khud ek meme ban jayega🤡",
+    " mins 👎, ab to dimaag b hang hone lagega🧠"
 )
 val list4 = listOf<String>(
-    "Bas kar saale! Itna time padhai ki hoti to IIT me hota! 🎓",
-    "Shabash, bilkul ese he sapne poore honge!",
-    "Shabash beta, 1 ghanta aur reels dekh le 🤡👏",
-    "Reels ke chode, sharam kar and get a life! 📲",
-    "Pookie Beta 💘 kuch kaam karlo!"
+//    "Reels ke chode, sharam kar & get a life 😭",
+    " mins bardbad, kasam hai tujhe ab ruk ja😡",
+    " mins ke baad bhi sharam nahi ayi? 😡",
+    " mins 👎 Phone me ghus kar marunga ab 👊😡",
+    " mins gone Bish, move your a*s now!"
 )
 
 fun getMessage(usedMinutes: Int): String {
