@@ -1,4 +1,4 @@
 <resources>
     <string name="app_name">DoomStop: Reduce ScreenTime</string>
-    <string name="accessibility_service_description">For monitoring the usage of instagram to prevent doomscrolling.</string>
+    <string name="accessibility_service_description">For monitoring the usage of instagram to prevent doom-scrolling.</string>
 </resources>

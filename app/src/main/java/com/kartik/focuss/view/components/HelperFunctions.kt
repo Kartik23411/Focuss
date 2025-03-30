@@ -1,5 +1,6 @@
 package com.kartik.focuss.view.components
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,21 +25,6 @@ fun Float.toTime(): String {
     else
         (this + 1f).toInt().toString()
 }
-
-fun getRandomMessage(): String {
-    val messagesList = listOf<String>(
-//        "You've spent X mins on Instagram, move your ass now! 🚀📵",
-        "Bas kar bhai, do something productive now! ⏳💪",
-        "Reels ke chode, sharam kar and get a life 😭📲",
-        "Shabash beta, 1 ghanta aur reels dekh le 🤡👏",
-        "Pookie, kuch kaam karle thoda! 😘📚",
-        "Naa maane? Karu teri guddi laal? 😡👋🏻"
-
-    )
-
-    return messagesList.random()
-}
-
 val list1 = listOf<String>(
     " mins gone 🤙🏻 Stop Scrolling!",
     " mins ❌ Do something productive now!",
@@ -78,11 +64,21 @@ val list4 = listOf<String>(
 
 fun getMessage(usedMinutes: Int): String {
     when (usedMinutes) {
-        in 1..15  -> return list1.random()
-        in 15..30 -> return list2.random()
-        in 30..45 -> return list3.random()
+        in 0 .. 15  -> return list1.random()
+        in 15 .. 30 -> return list2.random()
+        in 30 ..45 -> return list3.random()
         in 45..60 -> return list4.random()
         else      -> return list4.random()
+    }
+}
+
+fun getVibrationPattern(extraMinutes: Int): LongArray{
+    Log.d("Vibration", "$extraMinutes")
+    return when {
+        extraMinutes in 0..15 -> longArrayOf(0, 500, 200, 500)
+        extraMinutes in 15..30 -> longArrayOf(0, 750, 200, 750,200,750)
+        extraMinutes in 30..45 -> longArrayOf(0, 1000, 200, 1000, 200, 1000,200,1000)
+        else -> longArrayOf(0, 1500, 700, 1500, 200, 1500, 200, 1500,200,1500,200,1500)
     }
 }
 

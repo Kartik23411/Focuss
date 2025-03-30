@@ -73,7 +73,7 @@ class MainActivity : ComponentActivity() {
                 }
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
+                    val powerManager = getSystemService(POWER_SERVICE) as PowerManager
                     if (!powerManager.isIgnoringBatteryOptimizations(context.packageName)) {
                         val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
                             data = Uri.parse("package:${context.packageName}")
@@ -84,7 +84,7 @@ class MainActivity : ComponentActivity() {
                 }
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                    val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
                     if (!alarmManager.canScheduleExactAlarms()) {
                         // Launch the settings to allow scheduling exact alarms
                         val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
@@ -126,7 +126,7 @@ class MainActivity : ComponentActivity() {
 
     // Checks if the app has permission to access usage stats.
     private fun checkUsageAccess(context: Context): Boolean {
-        val appOps = context.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
+        val appOps = context.getSystemService(APP_OPS_SERVICE) as AppOpsManager
         val mode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             appOps.unsafeCheckOpNoThrow(
                 "android:get_usage_stats",

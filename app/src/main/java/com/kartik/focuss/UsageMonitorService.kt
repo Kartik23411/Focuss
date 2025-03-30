@@ -20,20 +20,21 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.net.toUri
 import com.kartik.focuss.view.components.getMessage
+import com.kartik.focuss.view.components.getVibrationPattern
 
 class UsageMonitorService : Service() {
 
     companion object {
         const val TAG = "UsageMonitorService"
         const val CHANNEL_ID = "UsageMonitorChannel"
-        const val ALERT_CHANNEL_ID = "ALERT_CHANNEL"
+        const val ALERT_CHANNEL_ID = "ALERT_CHANNEL_DALRMOF"
         const val NOTIFICATION_ID = 1
         const val ALERT_NOTIFICATION_ID = 2
         const val TARGET_PACKAGE = "com.instagram.android"
         const val CHECK_INTERVAL = 10000L
     }
 
-    private var thresholdTime: Long = 1 * 60 * 1000L
+    private var thresholdTime: Long = 1 * 30 * 1000L
 
     private var sessionTime: Long = 0L
     private var notificationCount: Int = 0
@@ -53,20 +54,27 @@ class UsageMonitorService : Service() {
                 if (instagramUsageStartTime == 0L) {
                     instagramUsageStartTime = System.currentTimeMillis()
                     notificationCount = 0
-                    Log.d(TAG, "Instagram detected in foreground, starting timer at $instagramUsageStartTime")
+                    Log.d(
+                        TAG,
+                        "Instagram detected in foreground, starting timer at $instagramUsageStartTime"
+                    )
                 }
-                    sessionTime = System.currentTimeMillis() - instagramUsageStartTime
-                    Log.d(TAG, "Session duration: $sessionTime ms")
-                    // Check if sessionTime has crossed an additional threshold interval.
-                    if (sessionTime >= (notificationCount + 1) * thresholdTime) {
-                        // Calculate the extra time used in minutes beyond the previous threshold.
+                sessionTime = System.currentTimeMillis() - instagramUsageStartTime
+                Log.d(TAG, "Session duration: $sessionTime ms")
+                // Check if sessionTime has crossed an additional threshold interval.
+                if (sessionTime >= (notificationCount + 1) * thresholdTime) {
+                    // Calculate the extra time used in minutes beyond the previous threshold.
 //                        val extraTime = sessionTime - (notificationCount * thresholdTime)
-                        val extraMinutes = (sessionTime / (60 * 1000)).toInt()
-                        Log.d(TAG, "Usage threshold exceeded, sending alert with extra usage: $extraMinutes min")
-                        showAlertNotification(extraMinutes)
-                        notificationCount++  // Increment the count so the next alert triggers after another threshold period.
-                    }
-            } else {
+                    val extraMinutes = (sessionTime / (60 * 1000)).toInt()
+                    Log.d(
+                        TAG,
+                        "Usage threshold exceeded, sending alert with extra usage: $extraMinutes min"
+                    )
+                    showAlertNotification(extraMinutes)
+                    notificationCount ++  // Increment the count so the next alert triggers after another threshold period.
+                }
+            }
+            else {
                 if (instagramUsageStartTime != 0L) {
                     Log.d(TAG, "Instagram is no longer in foreground, resetting timer")
                     clearAlertNotification()
@@ -86,7 +94,7 @@ class UsageMonitorService : Service() {
 
         val prefs = getSharedPreferences("focuss_prefs", MODE_PRIVATE)
         val thresholdMinutes = prefs.getInt("threshold_time", 5)
-        thresholdTime = thresholdMinutes * 60 * 1000L
+//        thresholdTime = thresholdMinutes * 60 * 1000L
         Log.d(TAG, "Threshold time set to $thresholdTime ms")
 
         createNotificationChannels()
@@ -108,7 +116,6 @@ class UsageMonitorService : Service() {
 
     override fun onBind(intent: Intent?): IBinder? = null
 
-
     private fun isInstagramForeground(): Boolean {
         val endTime = System.currentTimeMillis()
 
@@ -124,12 +131,14 @@ class UsageMonitorService : Service() {
             usageEvents.getNextEvent(event)
             if (event.packageName == TARGET_PACKAGE) {
                 when (event.eventType) {
-                    UsageEvents.Event.MOVE_TO_FOREGROUND -> {
+                    // 1 is for UsageEvents.Event.MOVE_TO_FOREGROUND
+                    1 -> {
                         if (event.timeStamp > lastForegroundTimestamp) {
                             lastForegroundTimestamp = event.timeStamp
                         }
                     }
-                    UsageEvents.Event.MOVE_TO_BACKGROUND -> {
+                    // 2 is for UsageEvents.Event.MOVE_TO_BACKGROUND
+                    2 -> {
                         if (event.timeStamp > lastBackgroundTimestamp) {
                             lastBackgroundTimestamp = event.timeStamp
                         }
@@ -140,20 +149,25 @@ class UsageMonitorService : Service() {
 
         val currentlyForeground = if (lastForegroundTimestamp > 0) {
             lastForegroundTimestamp > lastBackgroundTimestamp
-        } else {
+        }
+        else {
             false
         }
 
         // If no events are found, use the persistent state.
         val finalState = if (lastForegroundTimestamp == 0L && lastBackgroundTimestamp == 0L) {
             isInstagramPersistentlyForeground
-        } else {
+        }
+        else {
             currentlyForeground
         }
 
         // to Persist the current state for future checks.
         isInstagramPersistentlyForeground = finalState
-        Log.d(TAG, "isInstagramForeground (persistent): $finalState (Last FG: $lastForegroundTimestamp, Last BG: $lastBackgroundTimestamp)")
+        Log.d(
+            TAG,
+            "isInstagramForeground (persistent): $finalState (Last FG: $lastForegroundTimestamp, Last BG: $lastBackgroundTimestamp)"
+        )
         return finalState
     }
 
@@ -166,27 +180,28 @@ class UsageMonitorService : Service() {
                 NotificationManager.IMPORTANCE_LOW
             )
 
-            val soundUri: Uri = "${ContentResolver.SCHEME_ANDROID_RESOURCE}://$packageName/${R.raw.custom_sound}".toUri()
+            val soundUri: Uri =
+                    "${ContentResolver.SCHEME_ANDROID_RESOURCE}://$packageName/${R.raw.custom_sound}".toUri()
 
             val audioAttributes = AudioAttributes.Builder()
                     .setUsage(AudioAttributes.USAGE_NOTIFICATION)
                     .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
                     .build()
 
-            val alertChannel = NotificationChannel(
-                ALERT_CHANNEL_ID,
-                "Alert Channel",
-                NotificationManager.IMPORTANCE_HIGH
-            ).apply {
-                setSound(soundUri, audioAttributes)
-                enableVibration(true)
-                vibrationPattern = longArrayOf(0, 500, 200, 500)
-                setShowBadge(true)
-                lockscreenVisibility = VISIBILITY_PUBLIC
-            }
+//            val alertChannel = NotificationChannel(
+//                ALERT_CHANNEL_ID,
+//                "Alert Channel",
+//                NotificationManager.IMPORTANCE_HIGH
+//            ).apply {
+//                setSound(soundUri, audioAttributes)
+//                enableVibration(true)
+//                vibrationPattern = getVibrationPattern(55)
+//                setShowBadge(true)
+//                lockscreenVisibility = VISIBILITY_PUBLIC
+//            }
             val manager = getSystemService(NotificationManager::class.java)
             manager.createNotificationChannel(serviceChannel)
-            manager.createNotificationChannel(alertChannel)
+//            manager.createNotificationChannel(alertChannel)
             Log.d(TAG, "Notification channels created")
         }
     }
@@ -203,6 +218,9 @@ class UsageMonitorService : Service() {
     // Displays the alert notification when the usage threshold is exceeded.
     private fun showAlertNotification(extraMinutes: Int) {
 
+        var vibration = getVibrationPattern(extraMinutes * 30)
+        Log.e("vibration Pattern", "${vibration.toULongArray()}")
+
         val intent = Intent(this, MainActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(
             this,
@@ -211,23 +229,50 @@ class UsageMonitorService : Service() {
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
-        val notification = NotificationCompat.Builder(this, ALERT_CHANNEL_ID)
+        val dynamicChannelId = "$ALERT_CHANNEL_ID-$extraMinutes"  // Unique channel ID per pattern
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val soundUri: Uri = "${ContentResolver.SCHEME_ANDROID_RESOURCE}://$packageName/${R.raw.custom_sound}".toUri()
+            val audioAttributes = AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .build()
+
+            val alertChannel = NotificationChannel(
+                dynamicChannelId,
+                "Alert Channel for $extraMinutes min",
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                setSound(soundUri, audioAttributes)
+                enableVibration(true)
+                vibrationPattern = vibration
+                setShowBadge(true)
+                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+            }
+            val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(alertChannel)
+        }
+
+        val notification = NotificationCompat.Builder(this, dynamicChannelId)
                 .setContentTitle(
-                        "$extraMinutes" + getMessage(extraMinutes)
+                    "$extraMinutes" + getMessage(extraMinutes)
                 )
                 .setSmallIcon(R.drawable.icon)
                 .setOngoing(true)
                 .setAutoCancel(false)
                 .setPriority(NotificationCompat.PRIORITY_MAX)
-                .setCategory(NotificationCompat.CATEGORY_CALL)
+                .setCategory(NotificationCompat.CATEGORY_REMINDER)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setFullScreenIntent(pendingIntent, true)
                 .setContentIntent(pendingIntent)
-                .setStyle(NotificationCompat.BigTextStyle()
-                                .setBigContentTitle(
-                                        "$extraMinutes" + getMessage(extraMinutes)
-                                )
-                        .setSummaryText("Swipe to dismiss"))
+                .setVibrate(vibration)
+//                .setTimeoutAfter(30000)
+                .setStyle(
+                    NotificationCompat.BigTextStyle()
+                            .setBigContentTitle(
+                                "$extraMinutes" + getMessage(extraMinutes)
+                            )
+                )
                 .build()
 
         notification.flags = notification.flags or Notification.FLAG_NO_CLEAR
@@ -239,7 +284,7 @@ class UsageMonitorService : Service() {
         Log.d(TAG, "Alert notification displayed")
     }
 
-    private fun clearAlertNotification(){
+    private fun clearAlertNotification() {
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.cancel(ALERT_NOTIFICATION_ID)
     }
