@@ -1,7 +1,6 @@
 package com.kartik.focuss
 
 import android.app.Notification
-import android.app.Notification.VISIBILITY_PUBLIC
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -19,8 +18,8 @@ import android.os.Looper
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.net.toUri
-import com.kartik.focuss.view.components.getMessage
-import com.kartik.focuss.view.components.getVibrationPattern
+import com.kartik.focuss.presentation.ui.components.getMessage
+import com.kartik.focuss.presentation.ui.components.getVibrationPattern
 
 class UsageMonitorService : Service() {
 
@@ -232,7 +231,8 @@ class UsageMonitorService : Service() {
         val dynamicChannelId = "$ALERT_CHANNEL_ID-$extraMinutes"  // Unique channel ID per pattern
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val soundUri: Uri = "${ContentResolver.SCHEME_ANDROID_RESOURCE}://$packageName/${R.raw.custom_sound}".toUri()
+            val soundUri: Uri =
+                    "${ContentResolver.SCHEME_ANDROID_RESOURCE}://$packageName/${R.raw.custom_sound}".toUri()
             val audioAttributes = AudioAttributes.Builder()
                     .setUsage(AudioAttributes.USAGE_NOTIFICATION)
                     .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)

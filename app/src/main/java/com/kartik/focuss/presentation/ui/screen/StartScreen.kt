@@ -1,4 +1,4 @@
-package com.kartik.focuss.view
+package com.kartik.focuss.presentation.ui.screen
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

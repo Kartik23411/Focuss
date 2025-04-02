@@ -10,15 +10,15 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.kartik.focuss.view.MainScreen
-import com.kartik.focuss.view.StartScreen
+import com.kartik.focuss.presentation.ui.screen.MainScreen
+import com.kartik.focuss.presentation.ui.screen.StartScreen
 
 @Composable
 fun FocussNavHost(
     navController: NavHostController,
     modifier: Modifier = Modifier,
-    onStart:()-> Unit,
-    onStop:()->Unit
+    onStart: () -> Unit,
+    onStop: () -> Unit
 ) {
     NavHost(
         navController = navController,
@@ -26,10 +26,16 @@ fun FocussNavHost(
     ) {
         composable(
             "start",
-            enterTransition = { fadeIn(
-                tween(durationMillis = 500, easing = LinearOutSlowInEasing)) },
-            exitTransition = { fadeOut(
-                tween(durationMillis = 500, easing = FastOutLinearInEasing)) }
+            enterTransition = {
+                fadeIn(
+                    tween(durationMillis = 500, easing = LinearOutSlowInEasing)
+                )
+            },
+            exitTransition = {
+                fadeOut(
+                    tween(durationMillis = 500, easing = FastOutLinearInEasing)
+                )
+            }
         ) {
             StartScreen(
                 modifier = modifier,
@@ -40,7 +46,7 @@ fun FocussNavHost(
         composable(
             "main"
         ) {
-            MainScreen({onStart()}, {onStop()}, modifier)
+            MainScreen({ onStart() }, { onStop() }, modifier)
         }
     }
 }

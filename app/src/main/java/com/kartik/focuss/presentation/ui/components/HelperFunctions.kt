@@ -1,4 +1,4 @@
-package com.kartik.focuss.view.components
+package com.kartik.focuss.presentation.ui.components
 
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
@@ -25,6 +25,7 @@ fun Float.toTime(): String {
     else
         (this + 1f).toInt().toString()
 }
+
 val list1 = listOf<String>(
     " mins gone 🤙🏻 Stop Scrolling!",
     " mins ❌ Do something productive now!",
@@ -34,7 +35,8 @@ val list1 = listOf<String>(
     " mins ho gaye, teri battery nahi thaki? 🔋",
     " mins of scrolling? Ab Nobel Prize bheju?🏆",
 )
-val list2 = listOf<String>( " mins gone 😡 Karu teri Guddi laal?",
+val list2 = listOf<String>(
+    " mins gone 😡 Karu teri Guddi laal?",
     " mins barbad! Uth varna phone chipak jayega",
     " mins down the drain, move your ass 🍑 now",
     " mins wasted on Instagram, ab bas kar yar!",
@@ -64,21 +66,34 @@ val list4 = listOf<String>(
 
 fun getMessage(usedMinutes: Int): String {
     when (usedMinutes) {
-        in 0 .. 15  -> return list1.random()
-        in 15 .. 30 -> return list2.random()
-        in 30 ..45 -> return list3.random()
+        in 0..15  -> return list1.random()
+        in 15..30 -> return list2.random()
+        in 30..45 -> return list3.random()
         in 45..60 -> return list4.random()
         else      -> return list4.random()
     }
 }
 
-fun getVibrationPattern(extraMinutes: Int): LongArray{
+fun getVibrationPattern(extraMinutes: Int): LongArray {
     Log.d("Vibration", "$extraMinutes")
     return when {
-        extraMinutes in 0..15 -> longArrayOf(0, 500, 200, 500)
-        extraMinutes in 15..30 -> longArrayOf(0, 750, 200, 750,200,750)
-        extraMinutes in 30..45 -> longArrayOf(0, 1000, 200, 1000, 200, 1000,200,1000)
-        else -> longArrayOf(0, 1500, 700, 1500, 200, 1500, 200, 1500,200,1500,200,1500)
+        extraMinutes in 0..15  -> longArrayOf(0, 500, 200, 500)
+        extraMinutes in 15..30 -> longArrayOf(0, 750, 200, 750, 200, 750)
+        extraMinutes in 30..45 -> longArrayOf(0, 1000, 200, 1000, 200, 1000, 200, 1000)
+        else                   -> longArrayOf(
+            0,
+            1500,
+            700,
+            1500,
+            200,
+            1500,
+            200,
+            1500,
+            200,
+            1500,
+            200,
+            1500
+        )
     }
 }
 

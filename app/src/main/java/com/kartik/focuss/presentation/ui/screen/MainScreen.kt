@@ -1,4 +1,4 @@
-package com.kartik.focuss.view
+package com.kartik.focuss.presentation.ui.screen
 
 import android.content.Context
 import android.util.Log
@@ -30,9 +30,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Devices.PIXEL_7A
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.kartik.focuss.presentation.ui.components.AppSelectionCard
+import com.kartik.focuss.presentation.ui.components.TimeSelectionCard
 import com.kartik.focuss.ui.theme.FocussTheme
-import com.kartik.focuss.view.components.AppSelectionCard
-import com.kartik.focuss.view.components.TimeSelectionCard
 
 @Composable
 fun MainScreen(

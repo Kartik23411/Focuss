@@ -43,6 +43,9 @@ android {
 
 dependencies {
 
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")
+
+
     // Work Manager for background tasks
 //    implementation(libs.androidx.work.runtime.ktx)
     implementation (libs.androidx.work.runtime.ktx)

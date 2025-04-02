@@ -74,10 +74,11 @@ class MainActivity : ComponentActivity() {
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     val powerManager = getSystemService(POWER_SERVICE) as PowerManager
-                    if (!powerManager.isIgnoringBatteryOptimizations(context.packageName)) {
-                        val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
-                            data = Uri.parse("package:${context.packageName}")
-                        }
+                    if (! powerManager.isIgnoringBatteryOptimizations(context.packageName)) {
+                        val intent =
+                                Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                                    data = Uri.parse("package:${context.packageName}")
+                                }
                         // You can launch this intent directly or use a launcher; here we start it immediately.
                         context.startActivity(intent)
                     }
@@ -85,7 +86,7 @@ class MainActivity : ComponentActivity() {
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
-                    if (!alarmManager.canScheduleExactAlarms()) {
+                    if (! alarmManager.canScheduleExactAlarms()) {
                         // Launch the settings to allow scheduling exact alarms
                         val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
                             data = Uri.parse("package:$packageName")
@@ -101,7 +102,9 @@ class MainActivity : ComponentActivity() {
                 ) { innerpadding ->
                     FocussNavHost(
                         navController = navController,
-                        modifier = Modifier.fillMaxSize().padding(innerpadding),
+                        modifier = Modifier
+                                .fillMaxSize()
+                                .padding(innerpadding),
                         onStart = {
                             context.startService(
                                 Intent(
@@ -119,6 +122,7 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                     )
+//                    Main(modifier = Modifier.padding(innerpadding),viewModel = mainViewModel)
                 }
             }
         }

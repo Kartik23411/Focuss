@@ -1,4 +1,4 @@
-package com.kartik.focuss
+package com.kartik.focuss.receiver
 
 import android.app.AlarmManager
 import android.app.PendingIntent
@@ -8,7 +8,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.SystemClock
 import android.util.Log
-import kotlin.jvm.java
+import com.kartik.focuss.UsageMonitorService
 
 class BootReceiver : BroadcastReceiver() {
 
@@ -18,7 +18,8 @@ class BootReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent?) {
         if (intent?.action == Intent.ACTION_BOOT_COMPLETED ||
-                intent?.action == "android.intent.action.QUICKBOOT_POWERON") {
+                intent?.action == "android.intent.action.QUICKBOOT_POWERON"
+        ) {
             Log.d(TAG, "Device booted, starting UsageMonitorService")
 //            val serviceIntent = Intent(context, UsageMonitorService::class.java)
 //            // For Android O and above, startForegroundService is required
@@ -29,7 +30,7 @@ class BootReceiver : BroadcastReceiver() {
 //            }
 
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarmManager.canScheduleExactAlarms()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && ! alarmManager.canScheduleExactAlarms()) {
                 Log.e(TAG, "Exact alarms are not allowed; service will not be scheduled")
                 // Optionally, you might choose to schedule a non-exact alarm as a fallback.
                 return
@@ -60,7 +61,8 @@ class BootAlarmReceiver : BroadcastReceiver() {
         val serviceIntent = Intent(context, UsageMonitorService::class.java)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             context.startForegroundService(serviceIntent)
-        } else {
+        }
+        else {
             context.startService(serviceIntent)
         }
     }
