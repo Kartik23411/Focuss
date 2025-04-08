@@ -15,6 +15,9 @@ import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.net.toUri
@@ -26,7 +29,7 @@ class UsageMonitorService : Service() {
     companion object {
         const val TAG = "UsageMonitorService"
         const val CHANNEL_ID = "UsageMonitorChannel"
-        const val ALERT_CHANNEL_ID = "ALERT_CHANNEL_DALRMOF"
+        const val ALERT_CHANNEL_ID = "ALERT_CHANNEL_QWEMOF"
         const val NOTIFICATION_ID = 1
         const val ALERT_NOTIFICATION_ID = 2
         const val TARGET_PACKAGE = "com.instagram.android"
@@ -69,8 +72,9 @@ class UsageMonitorService : Service() {
                         TAG,
                         "Usage threshold exceeded, sending alert with extra usage: $extraMinutes min"
                     )
+                    startVibration(extraMinutes)
                     showAlertNotification(extraMinutes)
-                    notificationCount ++  // Increment the count so the next alert triggers after another threshold period.
+                    notificationCount ++
                 }
             }
             else {
@@ -179,13 +183,13 @@ class UsageMonitorService : Service() {
                 NotificationManager.IMPORTANCE_LOW
             )
 
-            val soundUri: Uri =
-                    "${ContentResolver.SCHEME_ANDROID_RESOURCE}://$packageName/${R.raw.custom_sound}".toUri()
-
-            val audioAttributes = AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_NOTIFICATION)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                    .build()
+//            val soundUri: Uri =
+//                    "${ContentResolver.SCHEME_ANDROID_RESOURCE}://$packageName/${R.raw.custom_sound}".toUri()
+//
+//            val audioAttributes = AudioAttributes.Builder()
+//                    .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+//                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+//                    .build()
 
 //            val alertChannel = NotificationChannel(
 //                ALERT_CHANNEL_ID,
@@ -214,11 +218,32 @@ class UsageMonitorService : Service() {
                 .build()
     }
 
+    private fun startVibration(extraMinutes: Int) {
+        val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val vibratorManager = getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager
+            vibratorManager.defaultVibrator
+        }
+        else {
+            @Suppress("DEPRECATION")
+            getSystemService(VIBRATOR_SERVICE) as Vibrator
+        }
+
+        val pattern = getVibrationPattern(extraMinutes * 15)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val effect = VibrationEffect.createWaveform(pattern, - 1)
+            vibrator.vibrate(effect)
+            Log.e("vibration", "${pattern.toULongArray()} , minutes $extraMinutes")
+        }
+        else {
+            @Suppress("DEPRECATION")
+            vibrator.vibrate(pattern, - 1)
+        }
+        Log.d(TAG, "Started vibration with pattern for $extraMinutes minutes")
+    }
+
     // Displays the alert notification when the usage threshold is exceeded.
     private fun showAlertNotification(extraMinutes: Int) {
 
-        var vibration = getVibrationPattern(extraMinutes * 30)
-        Log.e("vibration Pattern", "${vibration.toULongArray()}")
 
         val intent = Intent(this, MainActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(
@@ -244,8 +269,7 @@ class UsageMonitorService : Service() {
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
                 setSound(soundUri, audioAttributes)
-                enableVibration(true)
-                vibrationPattern = vibration
+                enableVibration(false)  // Disable notification vibration since we handle it separately
                 setShowBadge(true)
                 lockscreenVisibility = Notification.VISIBILITY_PUBLIC
             }
@@ -265,8 +289,6 @@ class UsageMonitorService : Service() {
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setFullScreenIntent(pendingIntent, true)
                 .setContentIntent(pendingIntent)
-                .setVibrate(vibration)
-//                .setTimeoutAfter(30000)
                 .setStyle(
                     NotificationCompat.BigTextStyle()
                             .setBigContentTitle(
