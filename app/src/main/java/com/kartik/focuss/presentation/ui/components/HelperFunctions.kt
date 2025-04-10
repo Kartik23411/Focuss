@@ -57,7 +57,6 @@ val list3 = listOf<String>(
     " mins 👎, ab to dimaag b hang hone lagega🧠"
 )
 val list4 = listOf<String>(
-//    "Reels ke chode, sharam kar & get a life 😭",
     " mins bardbad, kasam hai tujhe ab ruk ja😡",
     " mins ke baad bhi sharam nahi ayi? 😡",
     " mins 👎 Phone me ghus kar marunga ab 👊😡",
@@ -65,35 +64,23 @@ val list4 = listOf<String>(
 )
 
 fun getMessage(usedMinutes: Int): String {
+    Log.e("Message", "$usedMinutes")
     when (usedMinutes) {
-        in 0..15  -> return list1.random()
-        in 15..30 -> return list2.random()
-        in 30..45 -> return list3.random()
-        in 45..60 -> return list4.random()
-        else      -> return list4.random()
+        1  -> return list1.random()
+        2 -> return list2.random()
+        3 -> return list3.random()
+        4 -> return list4.random()
+        else -> return list4.random()
     }
 }
 
-fun getVibrationPattern(extraMinutes: Int): LongArray {
-    Log.d("Vibration", "$extraMinutes")
-    return when {
-        extraMinutes in 0..15  -> longArrayOf(0, 500, 200, 500)
-        extraMinutes in 15..30 -> longArrayOf(0, 750, 200, 750, 200, 750)
-        extraMinutes in 30..45 -> longArrayOf(0, 1000, 200, 1000, 200, 1000, 200, 1000)
-        else                   -> longArrayOf(
-            0,
-            1500,
-            700,
-            1500,
-            200,
-            1500,
-            200,
-            1500,
-            200,
-            1500,
-            200,
-            1500
-        )
+fun getVibrationPattern(notificationCount: Int): LongArray {
+    Log.d("Vibration", "$notificationCount")
+    return when(notificationCount) {
+        1 -> longArrayOf(0, 750, 200, 750, 200, 750)
+        2 -> longArrayOf(0, 1000, 200, 1000, 200, 1000, 200, 1000)
+        3 -> longArrayOf(0, 1500, 700, 1500, 200, 1500, 200, 1500, 200, 1500, 200, 1500)
+        else -> longArrayOf(0, 2000, 1000, 2000, 1000, 2000, 1000, 2000, 1000, 2000, 1000, 2000)
     }
 }
 

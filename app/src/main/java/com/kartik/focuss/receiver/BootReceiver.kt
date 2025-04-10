@@ -21,18 +21,10 @@ class BootReceiver : BroadcastReceiver() {
                 intent?.action == "android.intent.action.QUICKBOOT_POWERON"
         ) {
             Log.d(TAG, "Device booted, starting UsageMonitorService")
-//            val serviceIntent = Intent(context, UsageMonitorService::class.java)
-//            // For Android O and above, startForegroundService is required
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-//                context.startForegroundService(serviceIntent)
-//            }else{
-//                context.startService(serviceIntent)
-//            }
 
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && ! alarmManager.canScheduleExactAlarms()) {
                 Log.e(TAG, "Exact alarms are not allowed; service will not be scheduled")
-                // Optionally, you might choose to schedule a non-exact alarm as a fallback.
                 return
             }
 

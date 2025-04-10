@@ -37,6 +37,7 @@ class UsageMonitorService : Service() {
     }
 
     private var thresholdTime: Long = 1 * 30 * 1000L
+    private var lastNotificationTime: Long = 1 * 30 * 1000L
 
     private var sessionTime: Long = 0L
     private var notificationCount: Int = 0
@@ -63,19 +64,28 @@ class UsageMonitorService : Service() {
                 }
                 sessionTime = System.currentTimeMillis() - instagramUsageStartTime
                 Log.d(TAG, "Session duration: $sessionTime ms")
-                // Check if sessionTime has crossed an additional threshold interval.
-                if (sessionTime >= (notificationCount + 1) * thresholdTime) {
-                    // Calculate the extra time used in minutes beyond the previous threshold.
-//                        val extraTime = sessionTime - (notificationCount * thresholdTime)
-                    val extraMinutes = (sessionTime / (60 * 1000)).toInt()
-                    Log.d(
-                        TAG,
-                        "Usage threshold exceeded, sending alert with extra usage: $extraMinutes min"
-                    )
-                    startVibration(extraMinutes)
-                    showAlertNotification(extraMinutes)
-                    notificationCount ++
+
+                if (sessionTime >= thresholdTime) {
+                    val elapsedSinceLast = System.currentTimeMillis() - lastNotificationTime
+                    if (notificationCount == 0 || elapsedSinceLast >= 5 * 60 * 1000L) {
+                        val extraMinutes = (sessionTime / (60 * 1000)).toInt()
+                        startVibration(notificationCount + 1)
+                        showAlertNotification(extraMinutes, notificationCount + 1)
+                        notificationCount++
+                        lastNotificationTime = System.currentTimeMillis()
+                    }
                 }
+//                if (sessionTime >= ((notificationCount * 5) - 5) + thresholdTime) {
+////                        val extraTime = sessionTime - (notificationCount * thresholdTime)
+//                    val extraMinutes = (sessionTime / (60 * 1000)).toInt()
+//                    Log.d(
+//                        TAG,
+//                        "Usage threshold exceeded, sending alert with extra usage: $extraMinutes min"
+//                    )
+//                    startVibration(notificationCount + 1)
+//                    showAlertNotification(extraMinutes, notificationCount + 1)
+//                    notificationCount ++
+//                }
             }
             else {
                 if (instagramUsageStartTime != 0L) {
@@ -84,6 +94,7 @@ class UsageMonitorService : Service() {
                 }
                 instagramUsageStartTime = 0
                 sessionTime = 0
+                lastNotificationTime = 0L
                 notificationCount = 0
             }
             handler.postDelayed(this, CHECK_INTERVAL)
@@ -97,7 +108,7 @@ class UsageMonitorService : Service() {
 
         val prefs = getSharedPreferences("focuss_prefs", MODE_PRIVATE)
         val thresholdMinutes = prefs.getInt("threshold_time", 5)
-//        thresholdTime = thresholdMinutes * 60 * 1000L
+        thresholdTime = thresholdMinutes * 60 * 1000L
         Log.d(TAG, "Threshold time set to $thresholdTime ms")
 
         createNotificationChannels()
@@ -183,25 +194,6 @@ class UsageMonitorService : Service() {
                 NotificationManager.IMPORTANCE_LOW
             )
 
-//            val soundUri: Uri =
-//                    "${ContentResolver.SCHEME_ANDROID_RESOURCE}://$packageName/${R.raw.custom_sound}".toUri()
-//
-//            val audioAttributes = AudioAttributes.Builder()
-//                    .setUsage(AudioAttributes.USAGE_NOTIFICATION)
-//                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-//                    .build()
-
-//            val alertChannel = NotificationChannel(
-//                ALERT_CHANNEL_ID,
-//                "Alert Channel",
-//                NotificationManager.IMPORTANCE_HIGH
-//            ).apply {
-//                setSound(soundUri, audioAttributes)
-//                enableVibration(true)
-//                vibrationPattern = getVibrationPattern(55)
-//                setShowBadge(true)
-//                lockscreenVisibility = VISIBILITY_PUBLIC
-//            }
             val manager = getSystemService(NotificationManager::class.java)
             manager.createNotificationChannel(serviceChannel)
 //            manager.createNotificationChannel(alertChannel)
@@ -218,7 +210,7 @@ class UsageMonitorService : Service() {
                 .build()
     }
 
-    private fun startVibration(extraMinutes: Int) {
+    private fun startVibration(notificationCount: Int) {
         val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val vibratorManager = getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager
             vibratorManager.defaultVibrator
@@ -228,23 +220,24 @@ class UsageMonitorService : Service() {
             getSystemService(VIBRATOR_SERVICE) as Vibrator
         }
 
-        val pattern = getVibrationPattern(extraMinutes * 15)
+        val pattern = getVibrationPattern(notificationCount)
+        Log.e("Vibration, Uservice", "$notificationCount")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val effect = VibrationEffect.createWaveform(pattern, - 1)
             vibrator.vibrate(effect)
-            Log.e("vibration", "${pattern.toULongArray()} , minutes $extraMinutes")
+            Log.e("vibration", "${pattern.toULongArray()}")
         }
         else {
             @Suppress("DEPRECATION")
             vibrator.vibrate(pattern, - 1)
         }
-        Log.d(TAG, "Started vibration with pattern for $extraMinutes minutes")
+        Log.d(TAG, "Started vibration with pattern for $notificationCount minutes")
     }
 
     // Displays the alert notification when the usage threshold is exceeded.
-    private fun showAlertNotification(extraMinutes: Int) {
+    private fun showAlertNotification(extraMinutes: Int, notificationCount: Int) {
 
-
+        Log.e("notificaton Us", "$notificationCount")
         val intent = Intent(this, MainActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(
             this,
@@ -253,7 +246,7 @@ class UsageMonitorService : Service() {
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
-        val dynamicChannelId = "$ALERT_CHANNEL_ID-$extraMinutes"  // Unique channel ID per pattern
+//        val dynamicChannelId = "$ALERT_CHANNEL_ID-$extraMinutes"
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val soundUri: Uri =
@@ -264,12 +257,12 @@ class UsageMonitorService : Service() {
                     .build()
 
             val alertChannel = NotificationChannel(
-                dynamicChannelId,
+                ALERT_CHANNEL_ID,
                 "Alert Channel for $extraMinutes min",
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
                 setSound(soundUri, audioAttributes)
-                enableVibration(false)  // Disable notification vibration since we handle it separately
+                enableVibration(false)  // Disabled the vibration here as we are using different function for this
                 setShowBadge(true)
                 lockscreenVisibility = Notification.VISIBILITY_PUBLIC
             }
@@ -277,9 +270,9 @@ class UsageMonitorService : Service() {
             notificationManager.createNotificationChannel(alertChannel)
         }
 
-        val notification = NotificationCompat.Builder(this, dynamicChannelId)
+        val notification = NotificationCompat.Builder(this, ALERT_CHANNEL_ID)
                 .setContentTitle(
-                    "$extraMinutes" + getMessage(extraMinutes)
+                    "$extraMinutes" + getMessage(notificationCount)
                 )
                 .setSmallIcon(R.drawable.icon)
                 .setOngoing(true)
@@ -292,7 +285,7 @@ class UsageMonitorService : Service() {
                 .setStyle(
                     NotificationCompat.BigTextStyle()
                             .setBigContentTitle(
-                                "$extraMinutes" + getMessage(extraMinutes)
+                                "$extraMinutes" + getMessage(notificationCount)
                             )
                 )
                 .build()
